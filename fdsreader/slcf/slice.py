@@ -614,13 +614,6 @@ class Slice(np.lib.mixins.NDArrayOperatorsMixin):
                     # other border points actually appear twice, as the subslices overlap. This only
                     # applies for face_centered slices, as cell_centered slices will not overlap.
                     if not self.cell_centered:
-                        reduced_shape = list(slc_data.shape)
-                        reduced_shape[axis + 1] -= 1
-                        reduced_data_slices = tuple(slice(s) for s in reduced_shape)
-                        slc_data = slc_data[reduced_data_slices]
-                        if masked:
-                            mask = mask[reduced_data_slices]
-
                         # Temporarily save border points to add them back to the array again later
                         if np.isclose(slc.mesh.coordinates[dim][-1], global_max[dim]):
                             end_idx[dim] += 1
@@ -629,6 +622,13 @@ class Slice(np.lib.mixins.NDArrayOperatorsMixin):
                             temp_data = slc_data[tuple(temp_data_slices)]
                             if masked:
                                 temp_mask = mask[tuple(temp_data_slices)]
+
+                        reduced_shape = list(slc_data.shape)
+                        reduced_shape[axis + 1] -= 1
+                        reduced_data_slices = tuple(slice(s) for s in reduced_shape)
+                        slc_data = slc_data[reduced_data_slices]
+                        if masked:
+                            mask = mask[reduced_data_slices]
 
                     if n_repeat > 1:
                         slc_data = np.repeat(slc_data, n_repeat, axis=axis + 1)
